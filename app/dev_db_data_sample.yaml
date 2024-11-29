@@ -1,0 +1,33 @@
+- model: oauth2_provider.application
+  pk: 1
+  fields:
+    client_id: 
+    user: null
+    redirect_uris: ''
+    post_logout_redirect_uris: ''
+    client_type: confidential
+    authorization_grant_type: password
+    client_secret: 
+    hash_client_secret: false
+    name: Google
+    skip_authorization: false
+    created: 2024-11-29 06:30:00.146255+00:00
+    updated: 2024-11-29 06:38:56.643091+00:00
+    algorithm: ''
+    allowed_origins: ''
+
+- model: auth.user
+  pk: 1
+  fields:
+    password: pbkdf2_sha256$600000$ERC2Dt59vStlmKju3IkgV9$XZ8a/Nz70tt4jEiv0Xt2UPmh08HTaR9Ocfk+tSlA3Bw=
+    last_login: 2024-11-29 05:50:18.192871+00:00
+    is_superuser: true
+    username: a
+    first_name: ''
+    last_name: ''
+    email: ''
+    is_staff: true
+    is_active: true
+    date_joined: 2024-11-29 05:50:05.987578+00:00
+    groups: []
+    user_permissions: []

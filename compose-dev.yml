@@ -17,7 +17,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile.dev
-    command: ['bash', '-c', 'python manage.py migrate && python manage.py runserver 0.0.0.0:8000']
+    command: ['bash', '-c', 'python manage.py migrate && python create_default_yaml_data.py && python manage.py loaddata dev_db_data.yaml && python manage.py runserver 0.0.0.0:8000']
     ports: 
       - "8000:8000"
     volumes:
