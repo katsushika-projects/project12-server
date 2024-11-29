@@ -1,0 +1,22 @@
+# pyproject.toml
+[project]
+name = "project12-django"
+requires-python = ">= 3.11"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D203", "D212", "COM812", "ISC001"]
+
+[tool.ruff.lint.per-file-ignores]
+# testではassertを使用してよい
+"tests.py" = ["S101"]
+
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"

@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${DB_NAME} -U $${DB_USER}"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    networks:
+      - webnet
+
+  django:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.dev
+    command: ['bash', '-c', 'python manage.py migrate && python manage.py runserver 0.0.0.0:8000']
+    ports: 
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - webnet
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    ports:
+      - "9000:8080"
+    environment:
+      - SWAGGER_JSON=/openapi/main.yaml
+    volumes:
+      - ./openapi:/openapi
+
+networks:
+  webnet:
+    driver: bridge
