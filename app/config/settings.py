@@ -16,6 +16,8 @@ import environ  # type: ignore[import-untyped]
 
 env = environ.Env()
 
+AUTH_USER_MODEL = "users.User"
+
 AUTHENTICATION_BACKENDS = (
     # drf-social-oauth2 Google OAuth2
     "social_core.backends.google.GoogleOAuth2",
@@ -30,6 +32,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
 
+OAUTH2_PROVIDER = {
+    # アクセストークンの有効期限 秒
+    "ACCESS_TOKEN_EXPIRE_SECONDS": env.int("DJANGO_ACCESS_TOKEN_EXPIRE_SECONDS"),
+    # リフレッシュトークンの有効期限 秒
+    "REFRESH_TOKEN_EXPIRE_SECONDS": env.int("DJANGO_REFRESH_TOKEN_EXPIRE_SECONDS"),
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -58,6 +66,9 @@ INSTALLED_APPS = [
     "oauth2_provider",  # drf-social-oauth2
     "social_django",  # drf-social-oauth2
     "drf_social_oauth2",  # drf-social-oauth2
+    # Local apps
+    "users",
+    "tasks",
 ]
 
 MIDDLEWARE = [
@@ -149,7 +160,12 @@ STATIC_URL = "static/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+STUDY_LOG_MAX_MINUTES = env.int("DJANGO_STUDY_LOG_MAX_MINUTES")
+STUDY_LOG_MIN_MINUTES = env.int("DJANGO_STUDY_LOG_MIN_MINUTES")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+OPENAI_API_KEY = env.str("OPENAI_API_KEY")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

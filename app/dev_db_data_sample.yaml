@@ -16,8 +16,8 @@
     algorithm: ''
     allowed_origins: ''
 
-- model: auth.user
-  pk: 1
+- model: users.user
+  pk: 01937787-791f-7ce4-9839-e4723842afc3
   fields:
     password: pbkdf2_sha256$600000$ERC2Dt59vStlmKju3IkgV9$XZ8a/Nz70tt4jEiv0Xt2UPmh08HTaR9Ocfk+tSlA3Bw=
     last_login: 2024-11-29 05:50:18.192871+00:00

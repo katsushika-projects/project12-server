@@ -1,0 +1,281 @@
+openapi: 3.1.0
+
+info:
+  title: everstudy
+  summary: 学習に強制力を発生させられるWebアプリ
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: ローカル開発環境
+
+paths:
+  /auth/convert-token/:
+    post:
+      tags: [Auth]
+      summary: Googleトークンをアクセストークンに変換する
+      description: |
+        Googleトークンをアクセストークンに変換する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenConvertRequest'
+      responses:
+        '200':
+          description: トークン変換成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenConvertResponse'
+
+  /api/tasks/:
+    get:
+      tags: [Task]
+      summary: 自分のタスク一覧を取得する
+      description: |
+        自分のタスク一覧を取得する
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: タスク一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      tags: [Task]
+      summary: タスクを作成する
+      description: |
+        タスクを作成する
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+      responses:
+        '201':
+          description: タスク作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCreateResponse'
+  /api/tasks/{task_id}/logs/:
+    get:
+      tags: [Task]
+      summary: タスクの学習ログを取得する
+      description: |
+        タスクの学習ログを取得する
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: タスクID
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: 学習ログ取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudyLog'
+    post:
+      tags: [Task]
+      summary: タスクに学習ログを追加する
+      description: |
+        タスクに学習ログを追加する
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: タスクID
+          schema:
+            $ref: '#/components/schemas/id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateStudyLogRequest'
+      responses:
+        '201':
+          description: 学習ログ追加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyLog'
+components:
+  # 認証の定義
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  # トークン形式（任意: JWTやOAuthなど）
+
+  schemas:
+    # 要素一つ一つの定義 ABC順
+    datetime:
+      type: string
+      examples:
+        - "2024-09-16T10:35:49.716241+09:00"
+    fine:
+      type: integer
+      examples:
+        - 1000
+    id:
+      type: string
+      format: uuid
+      examples:
+        - 123e4567-e89b-12d3-a456-426614174000
+    name:
+      type: string
+      examples:
+        - "タスク名"
+    minutes:
+      type: integer
+      examples:
+        - 60
+    requires_new_task_creation:
+      type: boolean
+      examples:
+        - true
+    status:
+      type: string
+      examples:
+        - "N"
+        - "I"
+        - "D"
+        - "F"
+    time_or_null:
+      type: string
+      nullable: true
+      examples:
+        - "2024-09-16T10:35:49.716241+09:00"
+
+    # モデルの定義 ABC順
+
+    StudyLog:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+        user:
+          $ref: '#/components/schemas/id'
+        task:
+          $ref: '#/components/schemas/id'
+        minutes:
+          $ref: '#/components/schemas/minutes'
+        is_studying:
+          type: boolean
+        comment:
+          type: string
+        created_at:
+          $ref: '#/components/schemas/datetime'
+
+    Task:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+        name:
+          $ref: '#/components/schemas/name'
+        fine:
+          $ref: '#/components/schemas/fine'
+        status:
+          $ref: '#/components/schemas/status'
+        start_time:
+          $ref: '#/components/schemas/time_or_null'
+        due_time:
+          $ref: '#/components/schemas/time_or_null'
+        target_minutes:
+          $ref: '#/components/schemas/minutes'
+        achieved_minutes:
+          $ref: '#/components/schemas/minutes'
+        requires_new_task_creation:
+          type: boolean
+        new_task_created:
+          type: boolean
+        created_at:
+          $ref: '#/components/schemas/datetime'
+        updated_at:
+          $ref: '#/components/schemas/datetime'
+        user:
+          $ref: '#/components/schemas/id'
+
+
+
+    # リクエスト・レスポンスの定義 ABC順
+    CreateStudyLogRequest:
+      type: object
+      properties:
+        minutes:
+          $ref: '#/components/schemas/minutes'
+        image:
+          type: string
+          format: binary
+
+    TaskCreateRequest:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/name'
+        fine:
+          $ref: '#/components/schemas/fine'
+        target_minutes:
+          $ref: '#/components/schemas/minutes'
+        requires_new_task_creation:
+          $ref: '#/components/schemas/requires_new_task_creation'
+
+    TaskCreateResponse:
+      $ref: '#/components/schemas/Task'
+
+    TokenConvertRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          enum: [convert_token]
+        client_id:
+          type: string
+        backend:
+          type: string
+          enum: [google-oauth2]
+        token:
+          type: string
+
+    TokenConvertResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+        scope:
+          type: string
+        refresh_token:
+          type: string
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
