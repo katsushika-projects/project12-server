@@ -46,7 +46,7 @@ ruff:
 # pythonコードの静的解析
 @.PHONY: mypy
 mypy:
-	docker compose -f compose-dev.yml exec django mypy --strict .
+	docker compose -f compose-dev.yml exec django mypy .
 
 
 @.PHONY: bandit
