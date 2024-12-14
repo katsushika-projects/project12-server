@@ -29,10 +29,8 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> Task:
         """Handle fine-specific logic when creating a new task."""
-        if validated_data.get("fine") == 0:
-            validated_data["status"] = Task.IN_PROGRESS
-        else:
-            message = {"fine": ["Fine must be 0 in prototype version."]}
+        if validated_data.get("fine") != 0:
+            message = {"fine": ["プロトタイプでは、fineは0である必要があります。"]}
             raise serializers.ValidationError(message)
         return super().create(validated_data)
 
