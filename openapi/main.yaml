@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: everstudy
   summary: 学習に強制力を発生させられるWebアプリ
-  version: 1.0.0
+  version: 1.0.1
 
 servers:
   - url: http://localhost:8000
@@ -67,6 +67,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskCreateResponse'
+  /api/tasks/{task_id}/verify-and-start/:
+    post:
+      tags: [Task]
+      summary: タスクを開始する
+      description: |
+        タスクの支払い状況を確認し，問題がなければタスクを開始する．
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: タスクID
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: タスク開始成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
   /api/tasks/{task_id}/logs/:
     get:
       tags: [Task]
@@ -118,6 +140,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StudyLog'
+  /api/users/:
+    delete:
+      tags: [User]
+      summary: ユーザを削除する
+      description: |
+        ユーザを削除する
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: ユーザ削除成功
+          content:
+            application/json:
+              schema:
+                type: object
 components:
   # 認証の定義
   securitySchemes:
