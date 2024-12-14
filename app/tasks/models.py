@@ -1,10 +1,12 @@
 """Define the Task model."""
 
+from datetime import timedelta
 from typing import ClassVar
 
 import uuid6
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Task(models.Model):
@@ -56,6 +58,29 @@ class Task(models.Model):
         if self.can_complete:
             self.status = Task.DONE
         self.save()
+
+    def verify_payment_and_update_status(self) -> None:
+        """
+        支払い情報が登録されているかを確認し、タスクのステータスを更新します.
+
+        支払い情報が問題ない場合は以下を更新します:
+        - start_time
+        - due_time
+        - status
+        """
+        if self.status != Task.NOT_STARTED:
+            return
+
+        # 罰金額が0の場合
+        if self.fine == 0:
+            self.status = Task.IN_PROGRESS
+            self.start_time = timezone.now()
+            self.due_time = self.start_time + timedelta(days=5)
+            self.save()
+            return
+        # 罰金額が0より大きい場合
+        # stripe関連
+        return
 
 
 class StudyLog(models.Model):
