@@ -34,6 +34,8 @@ class TaskAPIView(APIView):
         serializer = TaskCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
+            # 新しいタスクが作成されたことによる過去タスクのステータス更新
+            serializer.instance.update_new_task_created()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

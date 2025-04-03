@@ -51,6 +51,27 @@ class Task(models.Model):
         con2 = not (self.requires_new_task_creation and not self.new_task_created)
         return con1 and con2
 
+    def update_new_task_created(self) -> None:
+        """このメソッドを呼んだタスクよりも古いタスクのnew_task_createdをTrueにし, データを更新する."""
+        # このメソッドを呼んだタスクよりも古いタスクのnew_task_createdをTrueにする
+        Task.objects.filter(
+            user=self.user,
+            created_at__lt=self.created_at,
+            new_task_created=False,
+        ).update(new_task_created=True)
+
+        tasks = Task.objects.filter(
+            user=self.user,
+            created_at__lt=self.created_at,
+            status=Task.IN_PROGRESS,
+            new_task_created=True,
+        )
+        # このメソッドを呼んだタスクよりも古いタスクの達成条件を満たすかどうかを確認し更新
+        for task in tasks:
+            if task.can_complete:
+                task.status = Task.DONE
+                task.save()
+
     def update_progress(self, minutes: int) -> None:
         """Update the task progress."""
         self.achieved_minutes += minutes
