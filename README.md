@@ -9,7 +9,7 @@ everstudyのバックエンド
 ```bash
 pwd
 # /path/to/project12-server
-cp .env.sample .env
+cp .env.dev .env
 ```
 
 ### 2. GoogleのClient IDとClient Secretを.envファイルに記述
