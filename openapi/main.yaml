@@ -29,6 +29,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenConvertResponse'
+  /auth/token/:
+    post:
+      tags: [Auth]
+      summary: トークン更新
+      description: |
+        リフレッシュトークンを用いて新しいアクセストークンを入手する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: トークン変換成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
 
   /api/tasks/:
     get:
@@ -279,6 +298,33 @@ components:
 
     TaskCreateResponse:
       $ref: '#/components/schemas/Task'
+
+    TokenRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          enum: [refresh_token]
+        refresh_token:
+          type: string
+        client_id:
+          type: string
+        client_secret:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+        scope:
+          type: string
+        refresh_token:
+          type: string
 
     TokenConvertRequest:
       type: object
