@@ -86,6 +86,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskCreateResponse'
+  /api/tasks/{task_id}/:
+    get:
+      tags: [Task]
+      summary: タスクの詳細を取得する
+      description: |
+        タスクの詳細を取得する
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: タスクID
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: タスク詳細取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
   /api/tasks/{task_id}/verify-and-start/:
     post:
       tags: [Task]

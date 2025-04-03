@@ -38,6 +38,24 @@ class TaskAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class TaskDetailAPIView(APIView):
+    """Define the TaskDetailAPIView class."""
+
+    permission_classes: ClassVar = [IsAuthenticated]
+
+    def get(self, request: Request, task_id: str) -> Response:
+        """Return a task detail."""
+        task = Task.objects.get(id=task_id)
+        if not task:
+            return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if task.user != request.user:
+            return Response({"error": "Task is not owned by the user"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+
 class TaskVerifyPaymentAndUpdateStatusAPIView(APIView):
     """Define the TaskVerifyPaymentAndUpdateStatusAPIView class."""
 

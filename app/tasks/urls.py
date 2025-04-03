@@ -2,12 +2,13 @@
 
 from django.urls import path
 
-from .views import StudyLogAPIView, TaskAPIView, TaskVerifyPaymentAndUpdateStatusAPIView
+from .views import StudyLogAPIView, TaskAPIView, TaskDetailAPIView, TaskVerifyPaymentAndUpdateStatusAPIView
 
 app_name = "tasks"
 
 urlpatterns = [
     path("", TaskAPIView.as_view(), name="task"),
+    path("<uuid:task_id>/", TaskDetailAPIView.as_view(), name="task-detail"),
     path(
         "<uuid:task_id>/verify-and-start/",
         TaskVerifyPaymentAndUpdateStatusAPIView.as_view(),
