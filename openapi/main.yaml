@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: everstudy
-  summary: 学習に強制力を発生させられるWebアプリ
+  summary: 学習に強制力を発生させるWebアプリ
   version: 1.0.1
 
 servers:
