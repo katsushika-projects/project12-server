@@ -36,7 +36,11 @@ class TaskAPIView(APIView):
             serializer.save(user=request.user)
             # 新しいタスクが作成されたことによる過去タスクのステータス更新
             serializer.instance.update_new_task_created()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = {
+                "payment_url": "https://example.com/payment",  # Stripeの決済URLをここに設定
+                "task": serializer.data,
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

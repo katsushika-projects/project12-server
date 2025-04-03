@@ -85,7 +85,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskCreateResponse'
+                type: object
+                properties:
+                  payment_url:
+                    type: string
+                    description: 支払いURL
+                  task:
+                    $ref: '#/components/schemas/TaskCreateResponse'
   /api/tasks/{task_id}/:
     get:
       tags: [Task]
