@@ -196,6 +196,30 @@ paths:
             application/json:
               schema:
                 type: object
+  /api/users/me/:
+    get:
+      tags: [User]
+      summary: 自分の情報を取得する
+      description: |
+        自分の情報を取得する
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 自分の情報取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  total_achieved_minutes:
+                    type: integer
+                  total_challenge_amount:
+                    type: integer
+                  total_loss_amount:
+                    type: integer
 components:
   # 認証の定義
   securitySchemes:
