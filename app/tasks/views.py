@@ -11,6 +11,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.exceptions import CreateCheckoutSessionError
+from payments.utils import create_checkout_session
 from users.models import User
 
 from .models import StudyLog, Task
@@ -36,10 +38,24 @@ class TaskAPIView(APIView):
             serializer.save(user=request.user)
             # 新しいタスクが作成されたことによる過去タスクのステータス更新
             serializer.instance.update_new_task_created()
+
+            # StripeのCheckoutセッションを作成
+            try:
+                payment_url = create_checkout_session(
+                    description="支払いから5日以内にタスクを達成しましょう!",
+                    name=str(serializer.instance.name),
+                    task_id=str(serializer.instance.id),
+                    unit_amount=int(serializer.instance.fine),
+                    email=str(request.user.email),
+                )
+            except CreateCheckoutSessionError as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             data = {
-                "payment_url": "https://example.com/payment",  # Stripeの決済URLをここに設定
+                "payment_url": payment_url,  # Stripeの決済URLをここに設定
                 "task": serializer.data,
             }
+
             return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

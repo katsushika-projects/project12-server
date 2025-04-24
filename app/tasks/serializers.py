@@ -2,6 +2,7 @@
 
 from typing import ClassVar
 
+from django.conf import settings
 from rest_framework import serializers
 
 from .models import StudyLog, Task
@@ -29,8 +30,8 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> Task:
         """Handle fine-specific logic when creating a new task."""
-        if validated_data.get("fine") != 0:
-            message = {"fine": ["プロトタイプでは、fineは0である必要があります。"]}
+        if 0 < validated_data.get("fine") < int(settings.STRIPE_MINIMUM_AMOUNT):
+            message = {"fine": ["罰金額は、「0円」または「50円以上」である必要があります。"]}
             raise serializers.ValidationError(message)
         return super().create(validated_data)
 
