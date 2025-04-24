@@ -32,6 +32,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
 
+# フロントエンドのドメイン
+CLIENT_DOMAIN = env.str("CLIENT_DOMAIN")
+
 OAUTH2_PROVIDER = {
     # アクセストークンの有効期限 秒
     "ACCESS_TOKEN_EXPIRE_SECONDS": env.int("DJANGO_ACCESS_TOKEN_EXPIRE_SECONDS"),
@@ -44,6 +47,12 @@ OAUTH2_PROVIDER = {
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
+
+# StripeのAPIキー
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
+
+# 支払いの最小金額、単位は円
+STRIPE_MINIMUM_AMOUNT = 50
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG")
@@ -67,8 +76,9 @@ INSTALLED_APPS = [
     "social_django",  # drf-social-oauth2
     "drf_social_oauth2",  # drf-social-oauth2
     # Local apps
-    "users",
+    "payments",
     "tasks",
+    "users",
 ]
 
 MIDDLEWARE = [
