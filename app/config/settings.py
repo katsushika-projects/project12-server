@@ -35,6 +35,9 @@ CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
 # フロントエンドのドメイン
 CLIENT_DOMAIN = env.str("CLIENT_DOMAIN")
 
+# AIを使用する際に使用
+GOOGLE_CLOUD_PROJECT_ID = env.str("GOOGLE_CLOUD_PROJECT_ID")
+
 OAUTH2_PROVIDER = {
     # アクセストークンの有効期限 秒
     "ACCESS_TOKEN_EXPIRE_SECONDS": env.int("DJANGO_ACCESS_TOKEN_EXPIRE_SECONDS"),
@@ -53,6 +56,10 @@ STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
 
 # 支払いの最小金額、単位は円
 STRIPE_MINIMUM_AMOUNT = 50
+
+# Stripeを使用するかどうか
+USE_STRIPE = env.bool("USE_STRIPE")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG")

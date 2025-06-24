@@ -8,7 +8,7 @@ celery==5.4.0
 gunicorn==23.0.0
 requests==2.32.3
 drf_social_oauth2==3.1.0
-openai==1.55.3
+google-cloud-aiplatform==1.98.0
 
 # 支払いについて
 stripe==12.0.1

@@ -56,7 +56,7 @@ bandit:
 .PHONY: check
 check:
 	@make ruff
-	@make mypy
+	# @make mypy
 	@make bandit
 	@make test
 

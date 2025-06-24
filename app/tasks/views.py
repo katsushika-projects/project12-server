@@ -4,6 +4,7 @@ import base64
 from typing import ClassVar
 
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -39,17 +40,22 @@ class TaskAPIView(APIView):
             # 新しいタスクが作成されたことによる過去タスクのステータス更新
             serializer.instance.update_new_task_created()
 
-            # StripeのCheckoutセッションを作成
-            try:
-                payment_url = create_checkout_session(
-                    description="支払いから5日以内にタスクを達成しましょう!",
-                    name=str(serializer.instance.name),
-                    task_id=str(serializer.instance.id),
-                    unit_amount=int(serializer.instance.fine),
-                    email=str(request.user.email),
+            if settings.USE_STRIPE:
+                # StripeのCheckoutセッションを作成
+                try:
+                    payment_url = create_checkout_session(
+                        description="支払いから5日以内にタスクを達成しましょう!",
+                        name=str(serializer.instance.name),
+                        task_id=str(serializer.instance.id),
+                        unit_amount=int(serializer.instance.fine),
+                        email=str(request.user.email),
+                    )
+                except CreateCheckoutSessionError as e:
+                    return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                payment_url = request.build_absolute_uri(
+                    reverse("payments:mock_stripe_success_redirect") + f"?task_id={serializer.instance.id}"
                 )
-            except CreateCheckoutSessionError as e:
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             data = {
                 "payment_url": payment_url,  # Stripeの決済URLをここに設定
@@ -151,7 +157,8 @@ class StudyLogAPIView(APIView):
         if serializer.is_valid():
             serializer.save(user=request.user)
             # タスクの達成時間を更新し、完了した場合はステータスを更新
-            task.update_progress(minutes)
+            if data["is_studying"]:
+                task.update_progress(minutes)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -174,11 +181,14 @@ class StudyLogAPIView(APIView):
         """Validate if a study log was created recently."""
         latest_study_log = StudyLog.objects.filter(user=user, task=task).order_by("-created_at").first()
         if latest_study_log:
-            two_minutes_seconds = 120
+            min_minutes_seconds = settings.STUDY_LOG_MIN_MINUTES * 60
+            min_minutes_seconds_minus_thirty_seconds = min_minutes_seconds - 30
             time_diff = (timezone.now() - latest_study_log.created_at).total_seconds()
-            if time_diff < two_minutes_seconds:
+            if time_diff < min_minutes_seconds_minus_thirty_seconds:
+                time_window = min_minutes_seconds_minus_thirty_seconds
+                message = f"Study log for the same task has been created within the last {time_window} seconds"
                 return Response(
-                    {"error": "Study log for the same task has been created within the last 2 minutes"},
+                    {"error": message},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return None

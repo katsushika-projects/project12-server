@@ -94,25 +94,25 @@ class Task(models.Model):
         # 既に支払い情報の確認が行われている場合
         if self.status != Task.NOT_STARTED:
             return
-
-        payment = Payment.objects.get(task=self)
-        if not payment:
-            # paymentのインスタンスが存在しない場合
-            # -> 基本的に起こりえない
-            return
-
-        if self.fine == 0 and (not payment.payment_status_is_paid()):
-            # 罰金額が0円かつStripeでボタンを押していない場合
-            return
-
-        # 罰金額が0以外の場合
-        if self.fine != 0:
-            if not payment.stripe_has_payment_intent():
-                # Stripe側にintentが存在しない場合
-                #  -> Stripeの決済ページでボタンを押していない場合
+        if settings.USE_STRIPE:
+            payment = Payment.objects.get(task=self)
+            if not payment:
+                # paymentのインスタンスが存在しない場合
+                # -> 基本的に起こりえない
                 return
-            # intentのidをモデルに保存
-            payment.attach_intent_id()
+
+            if self.fine == 0 and (not payment.payment_status_is_paid()):
+                # 罰金額が0円かつStripeでボタンを押していない場合
+                return
+
+            # 罰金額が0以外の場合
+            if self.fine != 0:
+                if not payment.stripe_has_payment_intent():
+                    # Stripe側にintentが存在しない場合
+                    #  -> Stripeの決済ページでボタンを押していない場合
+                    return
+                # intentのidをモデルに保存
+                payment.attach_intent_id()
 
         self.status = Task.IN_PROGRESS
         self.start_time = timezone.now()

@@ -1,13 +1,11 @@
 """Utility functions for tasks app."""
 
+import base64
 import json
 
+import vertexai
 from django.conf import settings
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=settings.OPENAI_API_KEY,
-)
+from vertexai.generative_models import GenerativeModel, Part
 
 prompt = """
 The following image captures a person's daily activities. Based on this image, please
@@ -52,24 +50,22 @@ Notes:
 
 
 def get_ai_response(base64_image: str) -> dict:
-    """Get AI response from OpenAI API."""
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": "low"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=300,
-    )
-    data = response.choices[0].message.content
-    if data is not None:
-        return json.loads(data)
-    return {"is_studying": True, "comment": "AI から適切なレスポンスが得られませんでした。"}
+    """Get AI response based on the provided base64 image."""
+    try:
+        project_id = settings.GOOGLE_CLOUD_PROJECT_ID
+        vertexai.init(project=project_id)
+
+        model = GenerativeModel("gemini-2.0-flash-001")
+
+        response = model.generate_content(
+            [Part.from_data(data=base64.b64decode(base64_image), mime_type="image/jpeg"), prompt]
+        )
+        response_text = response.text  # モデルからの生のレスポンス文字列
+        cleaned_response_text = response_text.strip()
+        if cleaned_response_text.startswith("```json"):
+            cleaned_response_text = cleaned_response_text[len("```json") :].strip()
+        if cleaned_response_text.endswith("```"):
+            cleaned_response_text = cleaned_response_text[: -len("```")].strip()
+            return json.loads(cleaned_response_text)
+    except Exception:  # noqa: BLE001
+        return {"is_studying": True, "comment": "AI から適切なレスポンスが得られませんでした。"}
