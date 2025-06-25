@@ -4,6 +4,7 @@ import base64
 from typing import ClassVar
 
 from django.conf import settings
+from django.core.management import call_command
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -223,3 +224,15 @@ class StudyLogAPIView(APIView):
         except ValueError:
             return Response({"error": "Invalid image file"}, status=status.HTTP_400_BAD_REQUEST)
         return get_ai_response(base64_image)
+
+
+class RunTaskCleanupView(APIView):
+    """定期実行用."""
+
+    authentication_classes: ClassVar = []  # 必要に応じて設定
+    permission_classes: ClassVar = []  # 認証が必要なら設定
+
+    def post(self, _request: Request) -> Response:
+        """Run the task cleanup command."""
+        call_command("mark_overdue_tasks")
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)

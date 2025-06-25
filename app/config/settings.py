@@ -147,17 +147,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-GS_BUCKET_NAME = env("GS_BUCKET_NAME")
 STATIC_URL = "/static/"
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
-    },
-}
-GS_DEFAULT_ACL = "publicRead"
+
+## Google Cloud Storageを使用するかどうか
+USE_GS_BUCKET = env.bool("USE_GS_BUCKET", default=False)
+if USE_GS_BUCKET:
+    GS_BUCKET_NAME = env("GS_BUCKET_NAME")
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        },
+    }
+    GS_DEFAULT_ACL = "publicRead"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

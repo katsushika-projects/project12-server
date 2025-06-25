@@ -2,7 +2,13 @@
 
 from django.urls import path
 
-from .views import StudyLogAPIView, TaskAPIView, TaskDetailAPIView, TaskVerifyPaymentAndUpdateStatusAPIView
+from .views import (
+    RunTaskCleanupView,
+    StudyLogAPIView,
+    TaskAPIView,
+    TaskDetailAPIView,
+    TaskVerifyPaymentAndUpdateStatusAPIView,
+)
 
 app_name = "tasks"
 
@@ -15,4 +21,5 @@ urlpatterns = [
         name="task-verify-and-start",
     ),
     path("<uuid:task_id>/logs/", StudyLogAPIView.as_view(), name="study-log"),
+    path("run-task-cleanup/", RunTaskCleanupView.as_view(), name="run_task_cleanup"),
 ]

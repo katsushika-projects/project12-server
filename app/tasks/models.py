@@ -71,16 +71,14 @@ class Task(models.Model):
         # このメソッドを呼んだタスクよりも古いタスクの達成条件を満たすかどうかを確認し更新
         for task in tasks:
             if task.can_complete:
-                task.status = Task.DONE
-                task.save()
+                task.mark_done()
 
     def update_progress(self, minutes: int) -> None:
         """Update the task progress."""
         self.achieved_minutes += minutes
         self.save()
         if self.can_complete:
-            self.status = Task.DONE
-        self.save()
+            self.mark_done()
 
     def verify_payment_and_update_status(self) -> None:
         """
@@ -119,6 +117,24 @@ class Task(models.Model):
         self.due_time = self.start_time + timedelta(days=5)
         self.save()
         return
+
+    def mark_done(self) -> None:
+        """タスクをDONE状態にする、副次的な処理も行う."""
+        self.status = self.DONE
+        self.save()
+
+        if settings.USE_STRIPE:
+            message = "オーソリの開放処理を実装する必要があります。"
+            raise NotImplementedError(message)
+
+    def mark_failed(self) -> None:
+        """タスクをFAILED状態にする、副次的な処理も行う."""
+        self.status = self.FAILED
+        self.save()
+
+        if settings.USE_STRIPE:
+            message = "キャプチャ処理を実装する必要があります。"
+            raise NotImplementedError(message)
 
 
 class StudyLog(models.Model):
