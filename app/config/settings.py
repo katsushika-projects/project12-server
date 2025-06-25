@@ -11,10 +11,18 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url  # type: ignore[import-untyped]
 
 import environ  # type: ignore[import-untyped]
 
 env = environ.Env()
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool("DJANGO_DEBUG")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env.str("DJANGO_SECRET_KEY")
+
 
 AUTH_USER_MODEL = "users.User"
 
@@ -30,13 +38,7 @@ AUTHENTICATION_BACKENDS = (
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
 
-# フロントエンドのドメイン
-CLIENT_DOMAIN = env.str("CLIENT_DOMAIN")
-
-# AIを使用する際に使用
-GOOGLE_CLOUD_PROJECT_ID = env.str("GOOGLE_CLOUD_PROJECT_ID")
 
 OAUTH2_PROVIDER = {
     # アクセストークンの有効期限 秒
@@ -45,27 +47,11 @@ OAUTH2_PROVIDER = {
     "REFRESH_TOKEN_EXPIRE_SECONDS": env.int("DJANGO_REFRESH_TOKEN_EXPIRE_SECONDS"),
 }
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str("DJANGO_SECRET_KEY")
-
-# StripeのAPIキー
-STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
-
-# 支払いの最小金額、単位は円
-STRIPE_MINIMUM_AMOUNT = 50
-
-# Stripeを使用するかどうか
-USE_STRIPE = env.bool("USE_STRIPE")
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DJANGO_DEBUG")
-
+CLIENT_DOMAIN = env.str("CLIENT_DOMAIN")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
-
+CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # Application definition
 
@@ -126,16 +112,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": env("DB_ENGINE"),
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
-    }
-}
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=env.str("DATABASE_URL"),
+#         conn_max_age=30,          # Cloud Run の再利用を意識
+#     )
+# }
+
+DATABASES = {"default": env.db()}
 
 
 # Password validation
@@ -172,17 +156,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+GS_BUCKET_NAME = env("GS_BUCKET_NAME")
+STATIC_URL = "/static/"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+    },
+}
+GS_DEFAULT_ACL = "publicRead"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-STUDY_LOG_MAX_MINUTES = env.int("DJANGO_STUDY_LOG_MAX_MINUTES")
-STUDY_LOG_MIN_MINUTES = env.int("DJANGO_STUDY_LOG_MIN_MINUTES")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-OPENAI_API_KEY = env.str("OPENAI_API_KEY")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -192,7 +182,26 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Stripeの設定
+## Stripeを使用するかどうか
+USE_STRIPE = env.bool("USE_STRIPE")
+## StripeのAPIキー
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
+## 支払いの最小金額、単位は円
+STRIPE_MINIMUM_AMOUNT = 50
 
+
+# AI関連
+## AIを使用する際に使用
+GOOGLE_CLOUD_PROJECT_ID = env.str("GOOGLE_CLOUD_PROJECT_ID")
+
+
+# Google OAuth2の設定
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env.str("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env.str("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = env.list("SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE")
+
+# アプリ内の設定値
+STUDY_LOG_MIN_MINUTES = env.int("DJANGO_STUDY_LOG_MIN_MINUTES")
+STUDY_LOG_MAX_MINUTES = env.int("DJANGO_STUDY_LOG_MAX_MINUTES")
+

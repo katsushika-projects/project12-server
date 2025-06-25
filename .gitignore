@@ -1,6 +1,10 @@
 __pycache__
 .env
+.env.yaml
 db
 
 # 開発時に，デフォルトのデータを環境変数を用いて作成しDBに保存する際に生成されるファイル
 dev_db_data.yaml
+
+# cloud sqlにローカルから接続するときに実行すべきプログラム
+cloud-sql-proxy

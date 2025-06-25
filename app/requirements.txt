@@ -1,14 +1,15 @@
 Django==4.2.16
 django-environ==0.11.2
 djangorestframework==3.15.2
-psycopg2==2.9.9
+psycopg2-binary==2.9.10
 django-cors-headers==4.4.0
 uuid6==2024.7.10
-celery==5.4.0
+django-storages[google]==1.14.6
 gunicorn==23.0.0
 requests==2.32.3
 drf_social_oauth2==3.1.0
 google-cloud-aiplatform==1.98.0
+dj-database-url==2.3.0
 
 # 支払いについて
 stripe==12.0.1
