@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import dj_database_url  # type: ignore[import-untyped]
 
 import environ  # type: ignore[import-untyped]
 
@@ -37,7 +36,6 @@ AUTHENTICATION_BACKENDS = (
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 
 OAUTH2_PROVIDER = {
@@ -111,13 +109,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     "default": dj_database_url.config(
-#         default=env.str("DATABASE_URL"),
-#         conn_max_age=30,          # Cloud Run の再利用を意識
-#     )
-# }
 
 DATABASES = {"default": env.db()}
 
@@ -204,4 +195,3 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = env.list("SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE")
 # アプリ内の設定値
 STUDY_LOG_MIN_MINUTES = env.int("DJANGO_STUDY_LOG_MIN_MINUTES")
 STUDY_LOG_MAX_MINUTES = env.int("DJANGO_STUDY_LOG_MAX_MINUTES")
-
