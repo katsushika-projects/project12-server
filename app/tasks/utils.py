@@ -38,8 +38,6 @@ Examples:
 }
 
 Notes:
-- If the person is using a PC, consider them to be studying.
-- If the image is taken from a PC camera, consider the person to be studying.
 - Ensure the results are accurate and concise.
 - Write the comment in natural, human-readable language.
 - Write the comment in Japanese.
@@ -55,7 +53,7 @@ def get_ai_response(base64_image: str) -> dict:
         project_id = settings.GOOGLE_CLOUD_PROJECT_ID
         vertexai.init(project=project_id)
 
-        model = GenerativeModel("gemini-2.0-flash-001")
+        model = GenerativeModel("gemini-2.5-pro")
 
         response = model.generate_content(
             [Part.from_data(data=base64.b64decode(base64_image), mime_type="image/jpeg"), prompt]
